@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
+import Table from "../Components/Library/Table";
 
 export const Route = createFileRoute("/")({
-  component: HomePage,
+    component: HomePage,
 });
 
 function HomePage() {
-  return (
-    <section>
-      <h1 className="text-3xl font-bold">Welcome</h1>
-      <p className="mt-2 text-zinc-400">
-        Your Tauri desktop application is running.
-      </p>
-    </section>
-  );
+    return (
+        <>
+            <section>
+                <h1 className="text-3xl font-bold">Library</h1>
+            </section>
+            <div>
+                <p>Add Songs</p>
+                <Table />
+            </div>
+        </>
+    );
 }

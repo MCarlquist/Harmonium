@@ -9,12 +9,17 @@ export const Route = createRootRoute({
     <div className="min-h-screen bg-zinc-950 text-white">
       <nav className="flex gap-4 border-b border-zinc-800 p-4">
         <Link to="/" className="[&.active]:text-green-400">
-          Home
+          Library
         </Link>
-
+        <Link
+          to="/Search"
+          className="[&.active]:text-green-400"
+        >
+          Search
+        </Link>
         <Link
           to="/Profile"
-          className="[&.active]:text-green-400"
+          className="ml-auto [&.active]:text-green-400"
         >
           Profile
         </Link>
