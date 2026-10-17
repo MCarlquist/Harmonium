@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
-import ResultsTable from "../../Components/Search/ResultsTable";
-import { client } from "../../Hooks/useClient";
+import ResultsTable, {
+  type ArtistResult,
+  type PlaylistResult,
+  type TrackResult,
+} from "../../Components/Search/ResultsTable";
+import { jamendo } from "../../Hooks/useJamendo";
 
 export const Route = createFileRoute("/Search/")({
   component: RouteComponent,
@@ -11,25 +15,30 @@ type NoResultsType = {
   searching: boolean;
 };
 
+type SearchResults = {
+  artists: ArtistResult[];
+  tracks: TrackResult[];
+  playlists: PlaylistResult[];
+};
+
 function RouteComponent() {
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<SearchResults>({
+    artists: [],
+    tracks: [],
+    playlists: []
+  });
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === "Enter") {
-      console.log(query);
-      // Searching
       setIsSearching(true);
-      client(query)
-        .then((data) => {
-          setIsSearching(false);
-          console.log(data);
-        })
-        .catch((err) => {
-          setIsSearching(false);
-          console.log(err);
-        });
+      console.log(query);
+      const artists = await jamendo('artists', query);
+      const tracks = await jamendo('tracks', query);
+      const playlists = await jamendo('playlists', query);
+      setIsSearching(false);
+      setResults({ artists, tracks, playlists });
     }
   };
 
@@ -46,20 +55,16 @@ function RouteComponent() {
           placeholder="Artist, track or playlist..."
         />
       </div>
-      {results.length > 0 ? <Results /> : <NoResults searching={!isSearching} />}
+      {results.artists.length > 0 || results.tracks.length > 0 || results.playlists.length > 0 ? (
+        <div className="flex flex-row gap-10">
+          <ResultsTable type="artists" results={results.artists} />
+          <ResultsTable type="tracks" results={results.tracks} />
+          <ResultsTable type="playlists" results={results.playlists} />
+        </div>
+      ) : (
+        <NoResults searching={!isSearching} />
+      )}
     </div>
-  );
-}
-
-function Results() {
-  return (
-    <>
-      <div className="flex flex-row gap-10">
-        <ResultsTable type={"Artist"} />
-        <ResultsTable type={"Track"} />
-        <ResultsTable type={"Playlist"} />
-      </div>
-    </>
   );
 }
 
