@@ -22,6 +22,7 @@ function Artwork({ image, name }: { image?: string; name?: string }) {
   );
 }
 
+/** Renders search results by category, linking artists whose IDs are defined. */
 function ResultsTable(props: ResultsTableProps) {
   if (props.type === "artists") {
     return (
@@ -77,6 +78,7 @@ function ResultsTable(props: ResultsTableProps) {
   );
 }
 
+/** Renders a result table that scrolls horizontally when its content overflows. */
 function Table({
   title,
   headings,

@@ -22,6 +22,7 @@ type SearchResults = {
   playlists: PlaylistResult[];
 };
 
+/** Renders the search input, result tables, and idle or loading feedback. */
 function RouteComponent() {
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
@@ -31,6 +32,10 @@ function RouteComponent() {
     playlists: []
   });
 
+  /**
+   * On Enter, searches all three categories and replaces the results on success.
+   * @throws Propagates search failures, leaving loading active and results unchanged.
+   */
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === "Enter") {
       setIsSearching(true);
@@ -68,6 +73,10 @@ function RouteComponent() {
   );
 }
 
+/**
+ * Renders feedback when no results are displayed.
+ * The `searching` prop shows the idle prompt when true and loading when false.
+ */
 function NoResults({ searching }: NoResultsType) {
   return (
     <>

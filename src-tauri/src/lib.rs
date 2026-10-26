@@ -20,6 +20,7 @@ pub enum ArtistEndpoint {
 }
 
 impl ArtistEndpoint {
+    /// Returns the artist subresource path: `albums`, `musicinfo`, or `tracks`.
     pub fn path(&self) -> &str {
         match self {
             ArtistEndpoint::Albums => "albums",
@@ -72,6 +73,14 @@ async fn search_jamendo(endpoint: JamendoEndpoint, query: String) -> Result<Vec<
     Ok(data.results)
 }
 
+/// Fetches the Jamendo results for an artist ID and artist subresource.
+///
+/// `endpoint` is the subpath under `artists`, such as `musicinfo`, `tracks`, or
+/// `albums`. Returns the response's results array, which may be empty.
+///
+/// # Errors
+/// Returns a string error if the request fails, the HTTP status is not successful,
+/// or the response cannot be decoded as a Jamendo response.
 #[tauri::command]
 async fn get_artist_by_id(id: String, endpoint: String) -> Result<Vec<Value>, String> {
     let url = format!(
@@ -98,6 +107,13 @@ async fn get_artist_by_id(id: String, endpoint: String) -> Result<Vec<Value>, St
     Ok(data.results)
 }
 
+/// Fetches album results with nested tracks from Jamendo for the given album ID.
+///
+/// Returns the response's results array, which may be empty.
+///
+/// # Errors
+/// Returns a string error if the request fails, the HTTP status is not successful,
+/// or the response cannot be decoded as a Jamendo response.
 #[tauri::command]
 async fn get_album_by_id(id: String) -> Result<Vec<Value>, String> {
     let url = format!(
@@ -123,6 +139,10 @@ async fn get_album_by_id(id: String) -> Result<Vec<Value>, String> {
 
     Ok(data.results)
 }
+/// Runs the Tauri application with Jamendo search and artist and album lookups.
+///
+/// # Panics
+/// Panics if the Tauri application fails to run.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

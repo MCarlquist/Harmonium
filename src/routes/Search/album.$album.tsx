@@ -2,9 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { albumById } from "../../Hooks/useJamendo";
 
 export const Route = createFileRoute("/Search/album/$album")({
+  /** Retains a string `artist` search value for back navigation; otherwise uses undefined. */
   validateSearch: (search: Record<string, unknown>) => ({
     artist: typeof search.artist === "string" ? search.artist : undefined,
   }),
+  /**
+   * Loads the first album result for the `album` route parameter.
+   * @throws An Error with message "Album not found" for empty results.
+   * Lookup failures propagate unchanged.
+   */
   loader: async ({ params }) => {
     const { album } = params;
     const albumResponse = await albumById(album);
@@ -19,6 +25,7 @@ export const Route = createFileRoute("/Search/album/$album")({
   component: RouteComponent,
 });
 
+/** Renders album details with a back link to the supplied artist or the search page. */
 function RouteComponent() {
   const albumResponse = Route.useLoaderData();
   console.log(albumResponse)

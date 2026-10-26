@@ -17,6 +17,10 @@ type PlayerProviderProps = {
 
 const PlayerContext = createContext<PlayerContextValue | undefined>(undefined);
 
+/**
+ * Shares the selected audio URL and its setter with descendants.
+ * The initial empty URL means no track is selected.
+ */
 const PlayerProvider = ({ children }: PlayerProviderProps) => {
   const [song, setSong] = useState("");
 

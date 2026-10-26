@@ -11,6 +11,7 @@ export const Route = createRootRoute({
   component: RootComponent,
 });
 
+/** Renders navigation, the active route, and a player when an audio URL is selected. */
 function RootComponent() {
   const player = useContext(PlayerContext);
 

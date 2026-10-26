@@ -7,6 +7,12 @@ import type {
   AlbumResult
 } from "../utils/types";
 
+/**
+ * Searches Jamendo by name in the selected category through Tauri.
+ * @returns The matching results array, which may be empty.
+ * @throws Propagates invocation failures, including request, HTTP status, and
+ * response decoding errors.
+ */
 export const jamendoSearch = async <T extends JamendoEndpoint>(
   endpoint: T,
   query: string,
@@ -25,6 +31,13 @@ export const jamendoSearch = async <T extends JamendoEndpoint>(
 };
 
 
+/**
+ * Fetches music information, tracks, or albums for a Jamendo artist ID.
+ * @returns Artist results; the tracks and albums endpoints nest their collections
+ * within each artist result. The results array may be empty.
+ * @throws Propagates invocation failures, including request, HTTP status, and
+ * response decoding errors.
+ */
 export const artistsById = async <T extends ArtistsByIdEndpoint>(
   endpoint: T,
   id: string,
@@ -41,6 +54,12 @@ export const artistsById = async <T extends ArtistsByIdEndpoint>(
   }
 };
 
+/**
+ * Fetches album results with nested tracks for a Jamendo album ID.
+ * @returns The album results array, which may be empty.
+ * @throws Propagates invocation failures, including request, HTTP status, and
+ * response decoding errors.
+ */
 export const albumById = async (id: string): Promise<AlbumResult[]> => {
   try {
     const results = await invoke<AlbumResult[]>('get_album_by_id', {

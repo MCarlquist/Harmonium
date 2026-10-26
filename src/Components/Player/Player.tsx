@@ -6,6 +6,7 @@ type PlayerProps = {
   url: string;
 };
 
+/** Renders audio controls for the supplied URL with autoplay requested. */
 const Player = ({ url }: PlayerProps) => {
   return (
     <div className={styles.player}>

@@ -4,6 +4,12 @@ import { useContext } from "react";
 import { PlayerContext } from "../../context/PlayerContext";
 
 export const Route = createFileRoute("/Search/artist/$result")({
+  /**
+   * Loads the first artist's music information, tracks, and albums for `result`.
+   * Missing track or album collections become empty arrays.
+   * @throws An Error with message "Artist not found" if music information results
+   * are empty. Lookup failures propagate unchanged.
+   */
   loader: async ({ params }) => {
     const { result } = params;
     const [musicInfoResults, tracksResults, albumResults] = await Promise.all([
@@ -28,6 +34,11 @@ export const Route = createFileRoute("/Search/artist/$result")({
   component: RouteComponent,
 });
 
+/**
+ * Renders artist details, album links, and track buttons that select audio for playback.
+ * Descriptions prefer English, then any nonblank translation, then a fallback.
+ * Tracks without audio are disabled; selection requires a player context.
+ */
 function RouteComponent() {
   const { musicInfo, tracks, albums } = Route.useLoaderData();
   const descriptions = musicInfo.musicinfo?.description;
