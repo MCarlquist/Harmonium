@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import './App.css';
 
+import { PlayerProvider } from "./context/PlayerContext";
 import { routeTree } from "./routeTree.gen";
 
 const hashHistory = createHashHistory();
@@ -26,6 +27,8 @@ ReactDOM.createRoot(
   document.getElementById("root")!,
 ).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <PlayerProvider>
+      <RouterProvider router={router} />
+    </PlayerProvider>
   </React.StrictMode>,
 );

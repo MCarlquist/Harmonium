@@ -98,11 +98,40 @@ async fn get_artist_by_id(id: String, endpoint: String) -> Result<Vec<Value>, St
     Ok(data.results)
 }
 
+#[tauri::command]
+async fn get_album_by_id(id: String) -> Result<Vec<Value>, String> {
+    let url = format!(
+        "https://api.jamendo.com/v3.0/albums/tracks/?client_id=42a786e1&format=jsonpretty&id={}",
+        id
+    );
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .send()
+        .await
+        .map_err(|e| format!("Request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!("API error status: {}", response.status()));
+    }
+
+    let data = response
+        .json::<JamendoApiResponse>()
+        .await
+        .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+    Ok(data.results)
+}
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![search_jamendo, get_artist_by_id])
+        .invoke_handler(tauri::generate_handler![
+            search_jamendo,
+            get_artist_by_id,
+            get_album_by_id
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { artistsById } from "../../Hooks/useJamendo";
+import { useContext } from "react";
+import { PlayerContext } from "../../context/PlayerContext";
 
-export const Route = createFileRoute("/Search/$result")({
+export const Route = createFileRoute("/Search/artist/$result")({
   loader: async ({ params }) => {
     const { result } = params;
     const [musicInfoResults, tracksResults, albumResults] = await Promise.all([
@@ -11,7 +13,7 @@ export const Route = createFileRoute("/Search/$result")({
     ]);
 
     const musicInfo = musicInfoResults[0];
-    const tracks = tracksResults;
+    const tracks = tracksResults[0]?.tracks ?? [];
     const albums = albumResults[0]?.albums ?? [];
     if (!musicInfo) {
       throw new Error("Artist not found");
@@ -38,8 +40,8 @@ function RouteComponent() {
     descriptions?.en?.trim() ||
     Object.values(descriptions ?? {}).find((text) => text.trim().length > 0) ||
     "No artist description is available.";
+  const pla = useContext(PlayerContext);
 
-  console.log(albums, tracks);
   return (
     <section className="flex flex-row">
       <div className="m-6">
@@ -62,16 +64,45 @@ function RouteComponent() {
         </div>
       </article>
       <article>
-        <h2>Albums</h2>
+        <h2 className="mb-4">Albums</h2>
         {albums.map((album, index) => (
-          <div key={album.id ?? `album-${index}`}>
-            {album.image && (
-              <img src={album.image} alt={`${album.name ?? "Album"} cover`} />
-            )}
-            <h3>{album.name ?? "Unknown album"}</h3>
-          </div>
+          <Link
+            key={album.id ?? `album-${index}`}
+            to="/Search/album/$album"
+            params={{ album: album.id }}
+            search={{ artist: String(musicInfo.id) }}
+          >
+            <div>
+              {album.image && (
+                <img src={album.image} alt={`${album.name ?? "Album"} cover`} />
+              )}
+              <h3>{album.name ?? "Unknown album"}</h3>
+            </div>
+          </Link>
         ))}
         <pre>{JSON.stringify(albums, null, 2)}</pre>
+      </article>
+      <article>
+        <h2>Tracks</h2>
+        {tracks.map((track, index) => (
+          <div
+            key={track.id ?? `track-${index}`}
+            className="avatar flex items-center mb-3"
+          >
+            <div className="w-13 h-13 rounded"></div>
+            <button
+              type="button"
+              className="ml-4 cursor-pointer text-left flex items-center"
+              disabled={!track.audio}
+              onClick={() => track.audio && pla?.setSong(track.audio)}
+            >
+              <img className="w-13" src={track.image} alt="" />
+              <span className="ml-4">
+                {track.name} - {musicInfo.name}
+              </span>
+            </button>
+          </div>
+        ))}
       </article>
     </section>
   );

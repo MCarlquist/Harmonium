@@ -10,7 +10,12 @@ export type ArtistMusicInfo = {
   image?: string;
   joindate?: string;
   musicinfo?: {
-    description?: Partial<Record<"de" | "en" | "es" | "fr" | "it" | "ja" | "pl" | "pt" | "ru", string>>;
+    description?: Partial<
+      Record<
+        "de" | "en" | "es" | "fr" | "it" | "ja" | "pl" | "pt" | "ru",
+        string
+      >
+    >;
     tags?: string[];
   };
   shareurl?: string;
@@ -34,9 +39,18 @@ export type ArtistAlbumsResponse = {
   website?: string;
 };
 
+export type ArtistTracksResponse = {
+  tracks: TrackResult[];
+  id: string;
+  image?: string;
+  joindate?: string;
+  name: string;
+  website?: string;
+};
+
 export type ArtistsByIdResults = {
   musicinfo: ArtistMusicInfo;
-  tracks: TrackResult;
+  tracks: ArtistTracksResponse;
   albums: ArtistAlbumsResponse;
 };
 
@@ -54,6 +68,7 @@ export type TrackResult = {
   album_name?: string;
   image?: string;
   duration?: number;
+  audio?: string;
 };
 
 export type PlaylistResult = {
@@ -64,6 +79,25 @@ export type PlaylistResult = {
   image?: string;
 };
 
+export type AlbumResult = {
+  id: string;
+  name: string;
+  releasedate: string;
+  artist_id: string;
+  artist_name: string;
+  track_id: string;
+  image: string;
+  zip: string;
+  zip_allowed: boolean;
+  tracks: AlbumTracks[];
+};
+
+export type AlbumTracks = TrackResult & {
+  count: string;
+  position: string;
+};
+
 export type JamendoResult = ArtistResult | TrackResult | PlaylistResult;
 export type ArtistsByIdEndpoint = keyof ArtistsByIdResults;
 export type JamendoEndpoint = keyof JamendoResults;
+export type AlbumResultsEndpoint = keyof AlbumResult;

@@ -31,7 +31,7 @@ function ResultsTable(props: ResultsTableProps) {
             <td>
               {artist.id !== undefined ? (
                 <Link
-                  to="/Search/$result"
+                  to="/Search/artist/$result"
                   params={{ result: String(artist.id) }}
                 >
                   <Artwork image={artist.image} name={artist.name} />
