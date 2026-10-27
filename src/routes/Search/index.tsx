@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
-import ResultsTable, {
+import {
   type ArtistResult,
   type PlaylistResult,
   type TrackResult,
-} from "../../Components/Search/ResultsTable";
-import { jamendo } from "../../Hooks/useJamendo";
+} from "../../utils/types";
+import ResultsTable from "../../Components/Search/ResultsTable";
+import { jamendoSearch } from "../../Hooks/useJamendo";
 
 export const Route = createFileRoute("/Search/")({
   component: RouteComponent,
@@ -21,6 +22,7 @@ type SearchResults = {
   playlists: PlaylistResult[];
 };
 
+/** Renders the search input, result tables, and idle or loading feedback. */
 function RouteComponent() {
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState("");
@@ -30,20 +32,23 @@ function RouteComponent() {
     playlists: []
   });
 
+  /**
+   * On Enter, searches all three categories and replaces the results on success.
+   * @throws Propagates search failures, leaving loading active and results unchanged.
+   */
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>): Promise<void> => {
     if (e.key === "Enter") {
       setIsSearching(true);
-      console.log(query);
-      const artists = await jamendo('artists', query);
-      const tracks = await jamendo('tracks', query);
-      const playlists = await jamendo('playlists', query);
+      const artists = await jamendoSearch('artists', query);
+      const tracks = await jamendoSearch('tracks', query);
+      const playlists = await jamendoSearch('playlists', query);
       setIsSearching(false);
       setResults({ artists, tracks, playlists });
     }
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex gap-4">
         <h1 className="text-3xl font-bold">Search</h1>
         <input
@@ -56,7 +61,7 @@ function RouteComponent() {
         />
       </div>
       {results.artists.length > 0 || results.tracks.length > 0 || results.playlists.length > 0 ? (
-        <div className="flex flex-row gap-10">
+        <div className="flex w-full flex-row gap-6">
           <ResultsTable type="artists" results={results.artists} />
           <ResultsTable type="tracks" results={results.tracks} />
           <ResultsTable type="playlists" results={results.playlists} />
@@ -68,16 +73,20 @@ function RouteComponent() {
   );
 }
 
+/**
+ * Renders feedback when no results are displayed.
+ * The `searching` prop shows the idle prompt when true and loading when false.
+ */
 function NoResults({ searching }: NoResultsType) {
   return (
     <>
       {searching ? (
-        <div className="mt-3">
+        <div className="mt-10">
           <h3>Search for your results...</h3>
         </div>
       ) : (
-          <div className="mt-3">
-            <span className="skeleton skeleton-text text-center">AI is thinking harder...</span>
+          <div className="mt-10">
+            <span className="skeleton skeleton-text text-center">Finding your next listen...</span>
         </div>
       )}
     </>

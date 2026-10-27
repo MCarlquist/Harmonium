@@ -1,0 +1,35 @@
+.player {
+  width: 100%;
+}
+
+.player :global(.rhap_container) {
+  background: var(--color-black);
+  box-shadow: none;
+  color: white;
+}
+
+.player :global(.rhap_time),
+.player :global(.rhap_current-time),
+.player :global(.rhap_total-time) {
+  color: white;
+}
+
+.player :global(.rhap_button-clear),
+.player :global(.rhap_button-clear svg),
+.player :global(.rhap_main-controls-button),
+.player :global(.rhap_volume-button) {
+  color: white;
+  fill: currentColor;
+}
+
+.player :global(.rhap_progress-bar),
+.player :global(.rhap_volume-bar) {
+  background-color: rgb(255 255 255 / 25%);
+}
+
+.player :global(.rhap_progress-filled),
+.player :global(.rhap_progress-indicator),
+.player :global(.rhap_volume-filled),
+.player :global(.rhap_volume-indicator) {
+  background-color: white;
+}

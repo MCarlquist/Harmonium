@@ -1,28 +1,6 @@
-export type ArtistResult = {
-  id?: string | number;
-  name?: string;
-  image?: string;
-  joindate?: string;
-};
+import { Link } from "@tanstack/react-router";
+import { ArtistResult, TrackResult, PlaylistResult } from "../../utils/types";
 
-export type TrackResult = {
-  id?: string | number;
-  name?: string;
-  artist_name?: string;
-  album_name?: string;
-  image?: string;
-  duration?: number;
-};
-
-export type PlaylistResult = {
-  id?: string | number;
-  name?: string;
-  user_name?: string;
-  creationdate?: string;
-  image?: string;
-};
-
-export type JamendoResult = ArtistResult | TrackResult | PlaylistResult;
 
 type ResultsTableProps =
   | { type: "artists"; results: ArtistResult[] }
@@ -44,14 +22,25 @@ function Artwork({ image, name }: { image?: string; name?: string }) {
   );
 }
 
+/** Renders search results by category, linking artists whose IDs are defined. */
 function ResultsTable(props: ResultsTableProps) {
   if (props.type === "artists") {
     return (
-      <Table title="Artists" headings={["Name", "Joined"]}>
+      <Table title="Artists" headings={["Name"]}>
         {props.results.map((artist, index) => (
           <tr key={artist.id ?? `artist-${index}`}>
-            <td><Artwork image={artist.image} name={artist.name} /></td>
-            <td>{artist.joindate ?? "—"}</td>
+            <td>
+              {artist.id !== undefined ? (
+                <Link
+                  to="/Search/artist/$result"
+                  params={{ result: String(artist.id) }}
+                >
+                  <Artwork image={artist.image} name={artist.name} />
+                </Link>
+              ) : (
+                <Artwork image={artist.image} name={artist.name} />
+              )}
+            </td>
           </tr>
         ))}
       </Table>
@@ -63,7 +52,9 @@ function ResultsTable(props: ResultsTableProps) {
       <Table title="Tracks" headings={["Name", "Artist", "Album", "Duration"]}>
         {props.results.map((track, index) => (
           <tr key={track.id ?? `track-${index}`}>
-            <td><Artwork image={track.image} name={track.name} /></td>
+            <td>
+              <Artwork image={track.image} name={track.name} />
+            </td>
             <td>{track.artist_name ?? "—"}</td>
             <td>{track.album_name ?? "—"}</td>
             <td>{formatDuration(track.duration)}</td>
@@ -74,18 +65,20 @@ function ResultsTable(props: ResultsTableProps) {
   }
 
   return (
-    <Table title="Playlists" headings={["Name", "Owner", "Created"]}>
+    <Table title="Playlists" headings={["Name", "Owner"]}>
       {props.results.map((playlist, index) => (
         <tr key={playlist.id ?? `playlist-${index}`}>
-          <td><Artwork image={playlist.image} name={playlist.name} /></td>
+          <td>
+            <Artwork image={playlist.image} name={playlist.name} />
+          </td>
           <td>{playlist.user_name ?? "—"}</td>
-          <td>{playlist.creationdate ?? "—"}</td>
         </tr>
       ))}
     </Table>
   );
 }
 
+/** Renders a result table that scrolls horizontally when its content overflows. */
 function Table({
   title,
   headings,
@@ -96,12 +89,14 @@ function Table({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-x-auto">
+    <section className="min-w-0 flex-1 overflow-x-auto">
       <h3 className="font-bold">{title}</h3>
-      <table className="table">
+      <table className="table w-full">
         <thead>
           <tr>
-            {headings.map((heading) => <th key={heading}>{heading}</th>)}
+            {headings.map((heading) => (
+              <th key={heading}>{heading}</th>
+            ))}
           </tr>
         </thead>
         <tbody>{children}</tbody>
