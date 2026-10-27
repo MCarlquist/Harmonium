@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { ArtistResult, TrackResult, PlaylistResult } from "../../utils/types";
-
+import { PlayerContext } from "../../context/PlayerContext";
+import { useContext } from "react";
+import { formatDuration } from "../../utils/formatDuration";
 
 type ResultsTableProps =
-  | { type: "artists"; results: ArtistResult[] }
+  | { type: "artists"; results: ArtistResult[]; query?: string }
   | { type: "tracks"; results: TrackResult[] }
   | { type: "playlists"; results: PlaylistResult[] };
 
@@ -24,6 +26,8 @@ function Artwork({ image, name }: { image?: string; name?: string }) {
 
 /** Renders search results by category, linking artists whose IDs are defined. */
 function ResultsTable(props: ResultsTableProps) {
+  const pla = useContext(PlayerContext);
+
   if (props.type === "artists") {
     return (
       <Table title="Artists" headings={["Name"]}>
@@ -34,6 +38,7 @@ function ResultsTable(props: ResultsTableProps) {
                 <Link
                   to="/Search/artist/$result"
                   params={{ result: String(artist.id) }}
+                  search={{ q: props.query ?? "" }}
                 >
                   <Artwork image={artist.image} name={artist.name} />
                 </Link>
@@ -52,8 +57,10 @@ function ResultsTable(props: ResultsTableProps) {
       <Table title="Tracks" headings={["Name", "Artist", "Album", "Duration"]}>
         {props.results.map((track, index) => (
           <tr key={track.id ?? `track-${index}`}>
-            <td>
-              <Artwork image={track.image} name={track.name} />
+            <td onClick={() => track.audio && pla?.setSong(track.audio)}>
+              <button>
+                <Artwork image={track.image} name={track.name} />
+              </button>
             </td>
             <td>{track.artist_name ?? "—"}</td>
             <td>{track.album_name ?? "—"}</td>
@@ -105,12 +112,6 @@ function Table({
   );
 }
 
-function formatDuration(duration?: number) {
-  if (duration === undefined) return "—";
 
-  const minutes = Math.floor(duration / 60);
-  const seconds = duration % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
 
 export default ResultsTable;

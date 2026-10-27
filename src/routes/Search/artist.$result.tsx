@@ -2,8 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { artistsById } from "../../Hooks/useJamendo";
 import { useContext } from "react";
 import { PlayerContext } from "../../context/PlayerContext";
+import { formatDuration } from "../../utils/formatDuration";
 
 export const Route = createFileRoute("/Search/artist/$result")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search.q === "string" ? search.q : "",
+  }),
   /**
    * Loads the first artist's music information, tracks, and albums for `result`.
    * Missing track or album collections become empty arrays.
@@ -41,6 +45,7 @@ export const Route = createFileRoute("/Search/artist/$result")({
  */
 function RouteComponent() {
   const { musicInfo, tracks, albums } = Route.useLoaderData();
+  const { q } = Route.useSearch();
   const descriptions = musicInfo.musicinfo?.description;
   const tags = musicInfo.musicinfo?.tags?.map((tag) => (
     <div key={tag} className="badge badge-primary">
@@ -57,7 +62,7 @@ function RouteComponent() {
     <section className="flex flex-row">
       <div className="m-6">
         <button className="btn">
-          <Link to="/Search">Back</Link>
+          <Link to="/Search" search={{ q }}>Back</Link>
         </button>
       </div>
 
@@ -81,7 +86,7 @@ function RouteComponent() {
             key={album.id ?? `album-${index}`}
             to="/Search/album/$album"
             params={{ album: album.id }}
-            search={{ artist: String(musicInfo.id) }}
+            search={{ artist: String(musicInfo.id), q }}
           >
             <div>
               {album.image && (
@@ -91,7 +96,7 @@ function RouteComponent() {
             </div>
           </Link>
         ))}
-        <pre>{JSON.stringify(albums, null, 2)}</pre>
+
       </article>
       <article>
         <h2>Tracks</h2>
@@ -109,7 +114,7 @@ function RouteComponent() {
             >
               <img className="w-13" src={track.image} alt="" />
               <span className="ml-4">
-                {track.name} - {musicInfo.name}
+                {track.name} - {musicInfo.name} - {formatDuration(track.duration)}
               </span>
             </button>
           </div>

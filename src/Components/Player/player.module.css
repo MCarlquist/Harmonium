@@ -1,5 +1,7 @@
 .player {
   width: 100%;
+  position: fixed;
+  bottom: 0;
 }
 
 .player :global(.rhap_container) {
