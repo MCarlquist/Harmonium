@@ -21,7 +21,11 @@ function RootComponent() {
         <Link to="/" className="[&.active]:text-green-400">
           Library
         </Link>
-        <Link to="/Search" className="[&.active]:text-green-400">
+        <Link
+          to="/Search"
+          search={{ q: "" }}
+          className="[&.active]:text-green-400"
+        >
           Search
         </Link>
         <Link

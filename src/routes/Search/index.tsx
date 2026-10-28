@@ -1,51 +1,59 @@
-import { createFileRoute } from "@tanstack/react-router";
-import React, { useState } from "react";
 import {
-  type ArtistResult,
-  type PlaylistResult,
-  type TrackResult,
-} from "../../utils/types";
+  createFileRoute,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import ResultsTable from "../../Components/Search/ResultsTable";
 import { jamendoSearch } from "../../Hooks/useJamendo";
 
 export const Route = createFileRoute("/Search/")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search.q === "string" ? search.q : "",
+  }),
+  loaderDeps: ({ search }) => ({ q: search.q }),
+  loader: async ({ deps: { q } }) => {
+    if (!q.trim()) {
+      return { artists: [], tracks: [], playlists: [] };
+    }
+
+    const [artists, tracks, playlists] = await Promise.all([
+      jamendoSearch("artists", q),
+      jamendoSearch("tracks", q),
+      jamendoSearch("playlists", q),
+    ]);
+
+    return { artists, tracks, playlists };
+  },
   component: RouteComponent,
 });
 
-type NoResultsType = {
-  searching: boolean;
-};
-
-type SearchResults = {
-  artists: ArtistResult[];
-  tracks: TrackResult[];
-  playlists: PlaylistResult[];
-};
-
-/** Renders the search input, result tables, and idle or loading feedback. */
 function RouteComponent() {
-  const [isSearching, setIsSearching] = useState(false);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResults>({
-    artists: [],
-    tracks: [],
-    playlists: []
+  const navigate = useNavigate({ from: Route.fullPath });
+  const { q } = Route.useSearch();
+  const results = Route.useLoaderData();
+  const isSearching = useRouterState({
+    select: (state) => state.status === "pending",
   });
+  const [query, setQuery] = useState(q);
 
-  /**
-   * On Enter, searches all three categories and replaces the results on success.
-   * @throws Propagates search failures, leaving loading active and results unchanged.
-   */
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>): Promise<void> => {
-    if (e.key === "Enter") {
-      setIsSearching(true);
-      const artists = await jamendoSearch('artists', query);
-      const tracks = await jamendoSearch('tracks', query);
-      const playlists = await jamendoSearch('playlists', query);
-      setIsSearching(false);
-      setResults({ artists, tracks, playlists });
-    }
+  useEffect(() => {
+    setQuery(q);
+  }, [q]);
+
+  const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") return;
+
+    await navigate({
+      search: { q: query.trim() },
+      replace: true,
+    });
   };
+
+  const hasResults =
+    results.artists.length > 0 ||
+    results.tracks.length > 0 ||
+    results.playlists.length > 0;
 
   return (
     <div className="w-full">
@@ -54,41 +62,42 @@ function RouteComponent() {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleKeyDown}
           className="input input-lg"
           placeholder="Artist, track or playlist..."
         />
       </div>
-      {results.artists.length > 0 || results.tracks.length > 0 || results.playlists.length > 0 ? (
+
+      {hasResults ? (
         <div className="flex w-full flex-row gap-6">
-          <ResultsTable type="artists" results={results.artists} />
+          <ResultsTable type="artists" results={results.artists} query={q} />
           <ResultsTable type="tracks" results={results.tracks} />
           <ResultsTable type="playlists" results={results.playlists} />
         </div>
       ) : (
-        <NoResults searching={!isSearching} />
+        <NoResults isSearching={isSearching} hasQuery={Boolean(q)} />
       )}
     </div>
   );
 }
 
-/**
- * Renders feedback when no results are displayed.
- * The `searching` prop shows the idle prompt when true and loading when false.
- */
-function NoResults({ searching }: NoResultsType) {
+function NoResults({
+  isSearching,
+  hasQuery,
+}: {
+  isSearching: boolean;
+  hasQuery: boolean;
+}) {
   return (
-    <>
-      {searching ? (
-        <div className="mt-10">
-          <h3>Search for your results...</h3>
-        </div>
+    <div className="mt-10">
+      {isSearching ? (
+        <span className="skeleton skeleton-text text-center">
+          Finding your next listen...
+        </span>
       ) : (
-          <div className="mt-10">
-            <span className="skeleton skeleton-text text-center">Finding your next listen...</span>
-        </div>
+        <h3>{hasQuery ? "No results found." : "Search for your results..."}</h3>
       )}
-    </>
+    </div>
   );
 }

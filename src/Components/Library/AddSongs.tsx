@@ -6,7 +6,7 @@ function AddSongs() {
             <p className="text-2xl text-center">Search songs to add them here</p>
             <p className="text-center">
                 <button className="btn">
-                    <Link to="/Search">
+                    <Link to="/Search" search={{ q: "" }}>
                         Go to search
                     </Link>
                 </button>
