@@ -7,7 +7,7 @@ import { formatDuration } from "../../utils/formatDuration";
 type ResultsTableProps =
   | { type: "artists"; results: ArtistResult[]; query?: string }
   | { type: "tracks"; results: TrackResult[] }
-  | { type: "playlists"; results: PlaylistResult[] };
+  | { type: "playlists"; results: PlaylistResult[], query?: string };
 
 function Artwork({ image, name }: { image?: string; name?: string }) {
   return (
@@ -76,7 +76,12 @@ function ResultsTable(props: ResultsTableProps) {
       {props.results.map((playlist, index) => (
         <tr key={playlist.id ?? `playlist-${index}`}>
           <td>
-            <Artwork image={playlist.image} name={playlist.name} />
+            <Link to="/Search/playlist/$playlist"
+              params={{ playlist: String(playlist.id) }}
+              search={{ q: props.query ?? ""}}
+            >
+              <Artwork image={playlist.image} name={playlist.name} />
+            </Link>
           </td>
           <td>{playlist.user_name ?? "—"}</td>
         </tr>

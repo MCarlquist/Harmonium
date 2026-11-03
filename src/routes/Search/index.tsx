@@ -73,7 +73,7 @@ function RouteComponent() {
         <div className="flex w-full flex-row gap-6">
           <ResultsTable type="artists" results={results.artists} query={q} />
           <ResultsTable type="tracks" results={results.tracks} />
-          <ResultsTable type="playlists" results={results.playlists} />
+          <ResultsTable type="playlists" results={results.playlists} query={q} />
         </div>
       ) : (
         <NoResults isSearching={isSearching} hasQuery={Boolean(q)} />
