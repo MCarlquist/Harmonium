@@ -77,6 +77,7 @@ export type PlaylistResult = {
   user_name?: string;
   creationdate?: string;
   image?: string;
+  tracks: TrackResult[]
 };
 
 export type AlbumResult = {
@@ -96,6 +97,7 @@ export type AlbumTracks = TrackResult & {
   count: string;
   position: string;
 };
+
 
 export type JamendoResult = ArtistResult | TrackResult | PlaylistResult;
 export type ArtistsByIdEndpoint = keyof ArtistsByIdResults;

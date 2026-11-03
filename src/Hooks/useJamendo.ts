@@ -4,7 +4,8 @@ import type {
   JamendoResults,
   JamendoEndpoint,
   ArtistsByIdEndpoint,
-  AlbumResult
+  AlbumResult,
+  PlaylistResult
 } from "../utils/types";
 
 /**
@@ -63,6 +64,18 @@ export const artistsById = async <T extends ArtistsByIdEndpoint>(
 export const albumById = async (id: string): Promise<AlbumResult[]> => {
   try {
     const results = await invoke<AlbumResult[]>('get_album_by_id', {
+      id
+    });
+    return results;
+  } catch (error) {
+    console.error(`Error getting album ${id}`, error);
+    throw error;
+  }
+}
+
+export const playlistById = async (id: string): Promise<PlaylistResult[]> => {
+  try {
+    const results = await invoke<PlaylistResult[]>('get_playlist_by_id', {
       id
     });
     return results;
