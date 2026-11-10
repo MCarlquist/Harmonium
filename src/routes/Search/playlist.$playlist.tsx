@@ -11,7 +11,6 @@ export const Route = createFileRoute("/Search/playlist/$playlist")({
   loader: async ({ params }) => {
     const { playlist } = params;
     const playlistResponse = await playlistById(playlist);
-    console.log(playlistResponse);
     const playlistResult = playlistResponse[0];
 
     return playlistResult ?? null;
