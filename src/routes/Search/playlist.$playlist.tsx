@@ -24,7 +24,6 @@ function RouteComponent() {
 
   const { q } = Route.useSearch();
   const playlistResponse = Route.useLoaderData();
-  console.log(playlistResponse);
 
   return (
     <section>
