@@ -11,13 +11,10 @@ export const Route = createFileRoute("/Search/playlist/$playlist")({
   loader: async ({ params }) => {
     const { playlist } = params;
     const playlistResponse = await playlistById(playlist);
+    console.log(playlistResponse);
     const playlistResult = playlistResponse[0];
 
-    if (!playlistResult) {
-      throw new Error("Playlist not found");
-    }
-
-    return playlistResult;
+    return playlistResult ?? null;
   },
   component: RouteComponent,
 });
@@ -31,12 +28,17 @@ function RouteComponent() {
   return (
     <section>
       <div className="m-6">
-        <button className="btn">
-          <Link to="/Search" search={{ q }}>
-            Back
-          </Link>
-        </button>
+        <Link className="btn" to="/Search" search={{ q }}>
+          Back
+        </Link>
       </div>
+
+      {!playlistResponse ? (
+        <article>
+          <h1 className="text-center">No tracks found in playlist.</h1>
+        </article>
+      ) : (
+        <>
       <article className="flex flex-col items-center">
         <h1 className="text-3xl">{playlistResponse.name}</h1>
         <p>{playlistResponse.creationdate}</p>
@@ -69,6 +71,8 @@ function RouteComponent() {
           </tbody>
         </table>
       </article>
+        </>
+      )}
     </section>
   );
 }
